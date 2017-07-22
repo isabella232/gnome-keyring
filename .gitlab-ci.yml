@@ -5,6 +5,19 @@ stages:
 variables:
   DEPENDENCIES: dbus-x11 gcc gnome-common gtk-doc make openssh python redhat-rpm-config
 
+fedora:meson:
+  image: fedora:latest
+  stage: build
+  before_script:
+    - dnf install -y 'dnf-command(builddep)'
+    - dnf builddep -y gnome-keyring
+    - dnf install -y $DEPENDENCIES meson ninja-build
+    - dbus-uuidgen --ensure
+  script:
+    - meson _build
+    - eval `dbus-launch --sh-syntax`
+    - ninja -C _build test
+
 fedora:Werror:
   image: fedora:latest
   stage: build
